@@ -165,6 +165,13 @@ class Woocommerce_Integration {
 	 * @return Language|null
 	 */
 	protected function language(): ?Language {
+		// Product data must stay in its source language everywhere in wp-admin,
+		// otherwise an editor would be shown translated text in the product
+		// editor and could save it over the original.
+		if ( $this->plugin->frontend()->is_admin_request() ) {
+			return null;
+		}
+
 		$router = $this->plugin->router();
 
 		if ( $router->is_default_language() ) {

@@ -121,11 +121,58 @@ class Frontend {
 	 * ------------------------------------------------------------------ */
 
 	/**
-	 * Returns the language for the current request, or null in the default one.
+	 * Whether this request belongs to the WordPress admin.
+	 *
+	 * The plugin translates the public website only; wp-admin always stays in
+	 * the site's own language. Ordinary admin screens are easy to detect, but
+	 * admin-ajax and REST need more care: `is_admin()` is true for every
+	 * admin-ajax request including the ones fired from the front end (such as
+	 * WooCommerce add-to-cart), and false for every REST request including the
+	 * ones the block editor makes. The referer is what actually distinguishes
+	 * them, so it decides here.
+	 *
+	 * @return bool
+	 */
+	public function is_admin_request(): bool {
+		$is_ajax = wp_doing_ajax();
+		$is_rest = defined( 'REST_REQUEST' ) && REST_REQUEST;
+
+		if ( is_admin() && ! $is_ajax ) {
+			return true;
+		}
+
+		if ( ! $is_ajax && ! $is_rest ) {
+			return false;
+		}
+
+		$referer = wp_get_referer();
+
+		if ( ! is_string( $referer ) || '' === $referer ) {
+			// No usable referer. For admin-ajax the safe assumption is "admin",
+			// because leaving output untranslated is never destructive.
+			return is_admin();
+		}
+
+		$admin_path = wp_parse_url( admin_url( '/' ), PHP_URL_PATH );
+		$admin_path = is_string( $admin_path ) && '' !== $admin_path ? $admin_path : '/wp-admin/';
+
+		return str_contains( $referer, $admin_path );
+	}
+
+	/**
+	 * Returns the language for the current request, or null when no
+	 * translation should be applied.
+	 *
+	 * This is the single choke point every content filter goes through, so
+	 * returning null here reliably switches the whole translation layer off.
 	 *
 	 * @return Language|null
 	 */
 	protected function target_language(): ?Language {
+		if ( $this->is_admin_request() ) {
+			return null;
+		}
+
 		$router = $this->plugin->router();
 
 		if ( $router->is_default_language() ) {
@@ -144,7 +191,9 @@ class Frontend {
 	public function filter_locale( $locale ): string {
 		$locale = (string) $locale;
 
-		if ( is_admin() && ! wp_doing_ajax() ) {
+		// Never switch the locale of an admin screen: the dashboard stays in
+		// the language the site owner configured in WordPress itself.
+		if ( $this->is_admin_request() ) {
 			return $locale;
 		}
 

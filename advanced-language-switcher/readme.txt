@@ -82,6 +82,22 @@ Optional full page caching stores the translated HTML per URL and language. It i
 
 == Frequently Asked Questions ==
 
+= Does this translate my WordPress dashboard too? =
+
+No. The plugin translates the public website only. Everything behind wp-admin —
+menus, post editor, settings screens, WooCommerce order screens, the Elementor
+editor — stays in whatever language you set for WordPress itself under
+Settings → General (or per user under Users → Profile → Language).
+
+That separation is deliberate and enforced in one place: admin screens,
+admin-ajax requests made from wp-admin, and REST requests made by the block
+editor all resolve to "no translation", so the locale is never switched and no
+content filter runs. Front end AJAX (WooCommerce add-to-cart, for example) is
+correctly identified as front end and still translates.
+
+It also means an editor always sees the original text when editing a post or a
+product, so a translation can never be saved over your source content.
+
 = Does the whole site translate, or only the Elementor widget? =
 
 The whole site. The Elementor widget is only the control that changes the active language; the translation layer operates globally across WordPress, Elementor and WooCommerce.

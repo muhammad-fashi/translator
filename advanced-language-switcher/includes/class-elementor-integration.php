@@ -231,6 +231,12 @@ class Elementor_Integration {
 			return $content;
 		}
 
+		// Never rewrite content being rendered for an admin screen or the
+		// Elementor editor: the editor must always show the source language.
+		if ( $this->plugin->frontend()->is_admin_request() ) {
+			return $content;
+		}
+
 		$router = $this->plugin->router();
 
 		if ( $router->is_default_language() ) {
