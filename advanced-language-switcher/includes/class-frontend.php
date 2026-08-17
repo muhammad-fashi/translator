@@ -113,7 +113,9 @@ class Frontend {
 		add_filter( 'the_excerpt', array( $this, 'filter_unbuffered_html' ), 20 );
 		add_filter( 'document_title_parts', array( $this, 'filter_title_parts' ), 20 );
 
-		add_action( 'shutdown', array( $this, 'store_discovered_strings' ), 20 );
+		// Runs last: the background worker may finish the request early, so
+		// nothing else must be waiting to print after it.
+		add_action( 'shutdown', array( $this, 'store_discovered_strings' ), 9999 );
 	}
 
 	/* ---------------------------------------------------------------------
@@ -519,30 +521,124 @@ class Frontend {
 	}
 
 	/**
-	 * Persists strings discovered while rendering, after the response is sent.
+	 * Records newly seen strings and tops up the translation memory.
+	 *
+	 * This runs on `shutdown`, after the page has already been delivered, so
+	 * neither the discovery write nor the translation call is on the visitor's
+	 * critical path. A page therefore renders at full speed the first time and
+	 * is translated by the time the next visitor arrives.
 	 *
 	 * @return void
 	 */
 	public function store_discovered_strings(): void {
-		if ( ! $this->discovered ) {
-			return;
-		}
-
 		$discovered       = $this->discovered;
 		$this->discovered = array();
 
-		$manager = $this->plugin->translations();
-		$context = 'frontend';
+		$language = $this->target_language();
 
-		foreach ( $discovered as $text ) {
-			$manager->register_string(
-				$text,
-				'',
-				array(
-					'object_type'     => $context,
-					'source_location' => $this->plugin->router()->get_original_request_uri(),
-				)
+		if ( ! $language instanceof Language ) {
+			return;
+		}
+
+		if ( $discovered ) {
+			$manager  = $this->plugin->translations();
+			$location = $this->plugin->router()->get_original_request_uri();
+
+			foreach ( $discovered as $text ) {
+				$manager->register_string(
+					$text,
+					'',
+					array(
+						'object_type'     => 'frontend',
+						'source_location' => $location,
+					)
+				);
+			}
+		}
+
+		$this->run_background_translation( $language );
+	}
+
+	/**
+	 * Translates a bounded slice of the outstanding strings.
+	 *
+	 * Deliberately small and lock-guarded: a burst of traffic must not turn
+	 * into a burst of translation requests, and a slow service must not pin a
+	 * PHP worker. Whatever is not translated stays pending for the next
+	 * request, so the site converges over the first few page views.
+	 *
+	 * @param Language $language Target language.
+	 * @return void
+	 */
+	protected function run_background_translation( Language $language ): void {
+		if ( ! Settings::is_enabled( 'background_translate' ) || ! Settings::is_enabled( 'auto_translate_missing' ) ) {
+			return;
+		}
+
+		$engine = $this->plugin->engine();
+
+		if ( ! $engine->is_automatic() ) {
+			return;
+		}
+
+		$translations = $this->plugin->translations();
+
+		if ( $translations->count_pending( $language->id ) < 1 ) {
+			return;
+		}
+
+		// One worker at a time per language.
+		$lock = 'als_bg_' . $language->id;
+
+		if ( get_transient( $lock ) ) {
+			return;
+		}
+
+		set_transient( $lock, 1, 2 * MINUTE_IN_SECONDS );
+
+		$this->close_connection();
+
+		$provider = $engine->get_active_provider();
+
+		if ( $provider instanceof \ALS\Providers\Builtin_Provider ) {
+			$provider->set_time_budget( 10.0 );
+		}
+
+		$batch = max( 1, min( 50, Settings::get_int( 'background_batch', 10 ) ) );
+
+		try {
+			$translations->translate_batch( $language->id, $batch, 'missing' );
+		} catch ( \Throwable $error ) {
+			$this->plugin->logger()->error(
+				'Background translation failed: ' . $error->getMessage(),
+				array( 'language' => $language->code )
 			);
+		}
+
+		delete_transient( $lock );
+	}
+
+	/**
+	 * Sends the response and lets PHP carry on in the background.
+	 *
+	 * Only available under PHP-FPM; elsewhere the work simply runs before the
+	 * connection closes, which is why the batch and time budget are small.
+	 *
+	 * @return void
+	 */
+	protected function close_connection(): void {
+		/**
+		 * Filters whether the response is flushed before background work runs.
+		 *
+		 * @param bool $close Whether to finish the request early.
+		 */
+		if ( ! apply_filters( 'als_close_connection_early', true ) ) {
+			return;
+		}
+
+		if ( function_exists( 'fastcgi_finish_request' ) ) {
+			ignore_user_abort( true );
+			fastcgi_finish_request();
 		}
 	}
 

@@ -45,8 +45,11 @@ class Settings {
 	public static function defaults(): array {
 		return array(
 			// Translation engine.
-			'provider'                  => 'manual',
+			'provider'                  => 'builtin',
 			'source_language'           => '',
+			'builtin_service'           => 'mymemory',
+			'builtin_email'             => '',
+			'libretranslate_url'        => '',
 			'openai_model'              => 'gpt-4o-mini',
 			'openai_temperature'        => 0.2,
 			'openai_instructions'       => self::default_instructions(),
@@ -57,9 +60,11 @@ class Settings {
 			// Automatic translation behaviour.
 			'auto_translate_new'        => 1,
 			'auto_translate_updated'    => 0,
-			'auto_translate_missing'    => 0,
+			'auto_translate_missing'    => 1,
 			'overwrite_manual'          => 0,
 			'auto_translate_on_render'  => 0,
+			'background_translate'      => 1,
+			'background_batch'          => 10,
 
 			// URL handling.
 			'url_mode'                  => 'directory',
@@ -276,7 +281,8 @@ class Settings {
 		);
 
 		$enums = array(
-			'provider'           => array( 'manual', 'google', 'deepl', 'openai' ),
+			'provider'           => array( 'builtin', 'manual', 'google', 'deepl', 'openai' ),
+			'builtin_service'    => array( 'mymemory', 'libretranslate' ),
 			'url_mode'           => array( 'directory', 'directory_all', 'query', 'cookie' ),
 			'fallback_behaviour' => array( 'original', 'home' ),
 			'log_level'          => array( 'error', 'warning', 'info', 'debug' ),

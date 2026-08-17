@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ALS;
 
+use ALS\Providers\Builtin_Provider;
 use ALS\Providers\Deepl_Provider;
 use ALS\Providers\Google_Provider;
 use ALS\Providers\Manual_Provider;
@@ -69,6 +70,7 @@ class Translation_Engine {
 		}
 
 		$providers = array(
+			'builtin' => new Builtin_Provider(),
 			'manual' => new Manual_Provider(),
 			'google' => new Google_Provider(),
 			'deepl'  => new Deepl_Provider(),
@@ -118,7 +120,7 @@ class Translation_Engine {
 			return $provider;
 		}
 
-		return new Manual_Provider();
+		return new Builtin_Provider();
 	}
 
 	/**

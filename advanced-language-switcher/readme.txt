@@ -22,7 +22,8 @@ WordPress Admin → Language Manager → Translation Database → Translation En
 
 * **Language manager.** Add, edit, duplicate, reorder, enable, disable and delete languages. Set names, native names, short codes, locales, countries, flags and text direction.
 * **Translation memory.** Source strings and their translations live in dedicated, properly indexed database tables, with context so the same word can be translated differently in different places.
-* **Pluggable engines.** Manual, Google Translate, DeepL and OpenAI ship in the box behind one interface. Adding another engine is a single filter.
+* **Works with no API key.** The Built-in Translator is the default engine and needs no account, no key and no setup. Google, DeepL and OpenAI remain available as optional upgrades behind the same interface, and adding another engine is a single filter.
+* **Translates by itself.** New text is picked up as visitors browse and translated in the background, after the page has already been delivered, so page speed is untouched.
 * **Whole-site translation.** WordPress switches to the target locale, gettext strings resolve against your own translation memory, and a full page pass rewrites everything else — Elementor widgets, menus, WooCommerce templates, forms and theme output.
 * **Elementor widget.** A Language Switcher widget in its own "Language Translator" category, with eight presets and complete Content, Style and Advanced controls, including hover and active states and responsive values on every important control.
 * **WooCommerce.** Products, categories, attributes, variations, cart, checkout and account pages translate. SKUs, prices, order numbers and internal IDs never do. The cart survives a language change.
@@ -43,8 +44,8 @@ WordPress Admin → Language Manager → Translation Database → Translation En
 3. Go to **Language Translator → Languages** and add the languages you want to offer.
 4. Go to **Language Translator → URL Settings** and choose a URL structure. Directory URLs (`example.com/es/`) are recommended.
 5. Go to **Language Translator → Dashboard** and press **Scan Website**.
-6. Optionally open **Language Translator → Translation Engine**, choose a provider and save its API key.
-7. Open **Language Translator → Translations**, translate manually or press **Translate Missing Only**.
+6. Open **Language Translator → Translations** and press **Translate Missing Only**. No API key is needed: the Built-in Translator is already active.
+7. Review the results and edit anything you want to word differently. Your edits are never overwritten.
 8. Edit your Elementor header, drag in the **Language Switcher** widget, style it and publish.
 
 == Configuration ==
@@ -68,7 +69,49 @@ The active language is resolved from the URL, then the cookie, then the logged-i
 
 = Translation engines =
 
-Choose the provider under **Translation Engine**. API keys are stored in a separate, non-autoloaded option, are readable only by administrators, are masked in the interface and are never exposed to front end JavaScript.
+**No API key is required.** The plugin ships with a Built-in Translator that is
+selected out of the box, so translation works the moment you add a language.
+
+It is worth being precise about what "built-in" means. Real machine translation
+needs a language model far larger than any plugin can carry, so the built-in
+engine calls a free public service rather than translating offline. What it
+removes is the account and the API key, not the network request. Two services
+are supported:
+
+* **MyMemory** (default) — free, keyless, with a daily character allowance.
+  Nothing to configure. Adding an optional contact e-mail on the Translation
+  Engine screen raises that allowance; it is not a key or an account.
+* **LibreTranslate** — open source and self-hostable. Point the plugin at your
+  own server for unlimited translation where no third party ever sees your
+  content.
+
+Because every result is written to the translation memory, a given string
+costs one request in the lifetime of the site. A page that has been translated
+once never contacts the service again, so the daily allowance is spent on new
+content only.
+
+Google Translate, DeepL and OpenAI remain available for sites that want them.
+Those do need a key; API keys are stored in a separate, non-autoloaded option,
+are readable only by administrators, are masked in the interface and are never
+exposed to front end JavaScript.
+
+= Automatic background translation =
+
+With the defaults, untranslated text is translated on its own:
+
+1. A visitor opens a page in a non-default language. It renders immediately,
+   using the original text for anything not yet translated.
+2. After the response has been sent, the plugin records the new strings and
+   translates a small batch of them.
+3. The next visitor to that page sees it translated.
+
+Nothing is translated while the visitor waits, so this never slows a page down.
+A site converges over the first few views; pressing **Translate Missing Only**
+on the Translations screen does the whole site at once instead.
+
+Batch size and the whole behaviour are configurable under **Translation
+Engine → Automatic Translation**, and the background pass is lock-guarded so a
+traffic spike cannot turn into a burst of translation requests.
 
 Before a string is sent to a provider, placeholders are masked: `{name}`, `%name%`, `{{product_name}}`, `[shortcode]`, printf placeholders, URLs, e-mail addresses and HTML entities are replaced with opaque tokens and restored afterwards, so merge tags and shortcodes cannot be mangled. HTML structure is preserved; only visible text is translated.
 
@@ -106,9 +149,26 @@ The whole site. The Elementor widget is only the control that changes the active
 
 The original text renders. That is the default fallback and it applies at every level: a missing string, a missing page, or a failing translation API. You can switch the page-level fallback to "redirect to the translated home page" under URL Settings, but showing the original page is recommended so a visitor never loses their place.
 
-= What happens if my API key is wrong or the provider is down? =
+= Do I need an API key or a paid account? =
 
-Nothing visible to visitors. The failure is logged (when logging is enabled), the batch reports the error in the admin, and the original text keeps rendering.
+No. The Built-in Translator is active by default and needs neither. Google,
+DeepL and OpenAI are optional and only appear as choices; leaving them alone
+costs nothing.
+
+= What happens when the free daily allowance runs out? =
+
+Everything already translated keeps working, because translations are stored in
+your own database rather than fetched per request. Strings that were not
+reached stay queued and resume the next day. You can raise the allowance with
+an optional contact e-mail, switch to your own LibreTranslate server for no
+limit, or translate the remainder by hand.
+
+= What happens if a translation service is down or my host blocks it? =
+
+Nothing visible to visitors: the original text keeps rendering. The failure is
+logged (when logging is enabled) and reported in the admin. Use **Test
+Connection** on the Translation Engine screen to check whether your host allows
+outbound HTTP requests at all.
 
 = Will this empty my WooCommerce cart? =
 

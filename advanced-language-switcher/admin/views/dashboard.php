@@ -145,7 +145,7 @@ $als_last     = $als_scanner->last_scan();
 				?>
 			</p>
 
-			<?php if ( $als_provider->is_automatic() && ! $als_provider->is_configured() ) : ?>
+			<?php if ( $als_provider->is_automatic() && ! $als_provider->is_configured() && 'builtin' !== $als_provider->get_slug() ) : ?>
 				<p class="als-inline-notice als-inline-notice--warning">
 					<?php esc_html_e( 'This provider has no API key yet, so automatic translation is unavailable.', 'advanced-language-switcher' ); ?>
 				</p>
