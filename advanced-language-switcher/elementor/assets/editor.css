@@ -1,0 +1,25 @@
+/**
+ * Advanced Language Switcher - Elementor editor tweaks.
+ *
+ * Keeps the widget usable inside the panel preview without leaking styles to
+ * the front end.
+ */
+
+.elementor-control-design_mode .elementor-control-field-description {
+	line-height: 1.5;
+}
+
+.als-language-switcher--empty {
+	display: inline-flex;
+	align-items: center;
+	padding: 10px 14px;
+	border: 1px dashed #c3ccd8;
+	border-radius: 6px;
+	color: #6b7583;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.elementor-widget-als-language-switcher .als-language-item {
+	cursor: pointer;
+}

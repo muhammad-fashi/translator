@@ -1,0 +1,553 @@
+/**
+ * Advanced Language Switcher - front end styles.
+ *
+ * Every class is namespaced with `als-` so nothing here can collide with a
+ * theme or with Elementor. Elementor style controls override these values
+ * through higher-specificity generated rules, so the defaults below only ever
+ * act as a sensible starting point.
+ */
+
+.als-language-switcher {
+	--als-radius: 999px;
+	--als-border: #d7dde3;
+	--als-bg: #ffffff;
+	--als-color: #3c4859;
+	--als-active-bg: #1f4f45;
+	--als-active-color: #ffffff;
+	--als-hover-bg: rgba(31, 79, 69, 0.08);
+	--als-transition: 0.3s ease;
+	--als-translate-x: 0;
+	--als-translate-y: 0;
+	--als-scale: 1;
+
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	box-sizing: border-box;
+	max-width: 100%;
+	line-height: 1.2;
+}
+
+.als-language-switcher *,
+.als-language-switcher *::before,
+.als-language-switcher *::after {
+	box-sizing: inherit;
+}
+
+.als-language-item {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 8px 14px;
+	border: 0 solid transparent;
+	border-radius: var(--als-radius);
+	background: transparent;
+	color: var(--als-color);
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: all var(--als-transition);
+	transform: translate(var(--als-translate-x), var(--als-translate-y)) scale(var(--als-scale));
+}
+
+.als-language-item:hover,
+.als-language-item:focus-visible {
+	color: var(--als-color);
+	background-color: var(--als-hover-bg);
+	text-decoration: none;
+}
+
+.als-language-item:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+.als-language-item--active {
+	background-color: var(--als-active-bg);
+	color: var(--als-active-color);
+}
+
+.als-language-item--active:hover,
+.als-language-item--active:focus-visible {
+	background-color: var(--als-active-bg);
+	color: var(--als-active-color);
+}
+
+.als-language-flag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	font-size: 1.1em;
+	line-height: 1;
+}
+
+.als-language-flag--emoji {
+	font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+.als-language-flag--svg,
+.als-language-flag--image {
+	width: 20px;
+	height: 15px;
+	object-fit: cover;
+}
+
+.als-language-flag--rounded {
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+.als-language-flag--circle {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	overflow: hidden;
+	object-fit: cover;
+}
+
+.als-language-flag--square {
+	border-radius: 0;
+}
+
+.als-language-code {
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+.als-screen-reader-text {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.als-language-switcher--empty {
+	padding: 8px 12px;
+	border: 1px dashed var(--als-border);
+	border-radius: 6px;
+	color: #7c8797;
+	font-size: 13px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Layouts
+ * ------------------------------------------------------------------------ */
+
+.als-layout--vertical {
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.als-layout--vertical .als-language-item {
+	justify-content: flex-start;
+	width: 100%;
+}
+
+.als-layout--horizontal {
+	gap: 10px;
+}
+
+.als-layout--minimal {
+	gap: 12px;
+}
+
+.als-layout--minimal .als-language-item {
+	padding: 2px 0;
+	background: transparent;
+	font-weight: 500;
+	opacity: 0.6;
+}
+
+.als-layout--minimal .als-language-item--active {
+	background: transparent;
+	color: inherit;
+	opacity: 1;
+	font-weight: 700;
+}
+
+.als-layout--minimal .als-language-item:hover {
+	background: transparent;
+	opacity: 1;
+}
+
+.als-layout--compact {
+	gap: 0;
+}
+
+.als-layout--compact .als-language-item {
+	padding: 4px 8px;
+	font-size: 12px;
+}
+
+/* Pills: the rounded container with a filled active item. */
+.als-layout--pills {
+	padding: 3px;
+	border: 1px solid var(--als-border);
+	border-radius: var(--als-radius);
+	background-color: var(--als-bg);
+	gap: 2px;
+}
+
+.als-layout--pills .als-language-item {
+	padding: 6px 16px;
+	font-size: 13px;
+	border-radius: var(--als-radius);
+}
+
+/* Segmented control: shared container, divided items. */
+.als-layout--segmented {
+	padding: 4px;
+	border: 1px solid var(--als-border);
+	border-radius: 10px;
+	background-color: #f4f6f8;
+	gap: 4px;
+}
+
+.als-layout--segmented .als-language-item {
+	padding: 6px 16px;
+	border-radius: 7px;
+	font-size: 13px;
+}
+
+.als-layout--segmented .als-language-item--active {
+	background-color: #ffffff;
+	color: #101828;
+	box-shadow: 0 1px 3px rgba(16, 24, 40, 0.12);
+}
+
+/* ---------------------------------------------------------------------------
+ * Dropdown
+ * ------------------------------------------------------------------------ */
+
+.als-layout--dropdown {
+	display: inline-block;
+}
+
+.als-language-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 14px;
+	border: 1px solid var(--als-border);
+	border-radius: 8px;
+	background-color: var(--als-bg);
+	color: var(--als-color);
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.2;
+	cursor: pointer;
+	transition: all var(--als-transition);
+}
+
+.als-language-toggle:hover,
+.als-language-toggle:focus-visible {
+	background-color: var(--als-hover-bg);
+}
+
+.als-language-toggle__label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.als-language-caret {
+	width: 0;
+	height: 0;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 5px solid currentColor;
+	transition: transform var(--als-transition);
+}
+
+.als-language-toggle[aria-expanded="true"] .als-language-caret {
+	transform: rotate(180deg);
+}
+
+.als-language-dropdown {
+	position: absolute;
+	z-index: 999;
+	top: calc(100% + 6px);
+	left: 0;
+	display: flex;
+	flex-direction: column;
+	min-width: 180px;
+	padding: 6px;
+	border: 1px solid var(--als-border);
+	border-radius: 10px;
+	background-color: var(--als-bg);
+	box-shadow: 0 12px 32px rgba(16, 24, 40, 0.14);
+}
+
+.als-language-dropdown[hidden] {
+	display: none;
+}
+
+.als-is-rtl .als-language-dropdown {
+	left: auto;
+	right: 0;
+}
+
+.als-language-dropdown__item {
+	justify-content: flex-start;
+	width: 100%;
+	padding: 8px 12px;
+	border-radius: 6px;
+	font-weight: 500;
+}
+
+.als-language-dropdown__item:hover,
+.als-language-dropdown__item:focus-visible {
+	background-color: var(--als-hover-bg);
+}
+
+/* Dropdown animations. */
+.als-animation--fade .als-language-dropdown {
+	animation: als-fade-in 0.22s ease;
+}
+
+.als-animation--slide .als-language-dropdown {
+	animation: als-slide-in 0.22s ease;
+}
+
+.als-animation--scale .als-language-dropdown {
+	transform-origin: top center;
+	animation: als-scale-in 0.22s ease;
+}
+
+@keyframes als-fade-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes als-slide-in {
+	from {
+		opacity: 0;
+		transform: translateY(-8px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes als-scale-in {
+	from {
+		opacity: 0;
+		transform: scale(0.94);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+/* ---------------------------------------------------------------------------
+ * Presets
+ * ------------------------------------------------------------------------ */
+
+/* 1. Compact Pill - matches the reference design. */
+.als-preset--compact-pill {
+	padding: 3px;
+	border: 1px solid #dfe4ea;
+	border-radius: 999px;
+	background-color: #ffffff;
+	gap: 0;
+}
+
+.als-preset--compact-pill .als-language-item {
+	padding: 6px 18px;
+	border-radius: 999px;
+	color: #2f3b4c;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.als-preset--compact-pill .als-language-item--active {
+	background-color: #1f4f45;
+	color: #ffffff;
+}
+
+/* 2. Minimal Text. */
+.als-preset--minimal-text {
+	border: 0;
+	background: transparent;
+	padding: 0;
+	gap: 14px;
+}
+
+.als-preset--minimal-text .als-language-item {
+	padding: 0;
+	background: transparent;
+	color: inherit;
+	font-weight: 500;
+	opacity: 0.55;
+}
+
+.als-preset--minimal-text .als-language-item--active {
+	background: transparent;
+	color: inherit;
+	opacity: 1;
+	font-weight: 700;
+	text-decoration: underline;
+	text-underline-offset: 4px;
+}
+
+/* 3 & 4. Flag presets. */
+.als-preset--flag-code,
+.als-preset--flag-name {
+	gap: 10px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+
+.als-preset--flag-code .als-language-item,
+.als-preset--flag-name .als-language-item {
+	padding: 6px 10px;
+	border: 1px solid transparent;
+	border-radius: 8px;
+}
+
+.als-preset--flag-code .als-language-item--active,
+.als-preset--flag-name .als-language-item--active {
+	border-color: var(--als-border);
+	background-color: #f4f6f8;
+	color: inherit;
+}
+
+/* 5. Dropdown preset relies on the dropdown layout styles above. */
+
+/* 6. Modern Segmented. */
+.als-preset--modern-segmented {
+	padding: 4px;
+	border: 1px solid #e4e8ee;
+	border-radius: 12px;
+	background-color: #f5f7fa;
+	gap: 4px;
+}
+
+.als-preset--modern-segmented .als-language-item {
+	padding: 7px 18px;
+	border-radius: 9px;
+	color: #55607a;
+	font-size: 13px;
+}
+
+.als-preset--modern-segmented .als-language-item--active {
+	background-color: #ffffff;
+	color: #101828;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
+}
+
+/* 7. Glassmorphism. */
+.als-preset--glassmorphism {
+	padding: 4px;
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	border-radius: 999px;
+	background-color: rgba(255, 255, 255, 0.16);
+	backdrop-filter: blur(12px) saturate(150%);
+	-webkit-backdrop-filter: blur(12px) saturate(150%);
+	box-shadow: 0 8px 32px rgba(16, 24, 40, 0.18);
+}
+
+.als-preset--glassmorphism .als-language-item {
+	padding: 7px 18px;
+	border-radius: 999px;
+	color: #ffffff;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.als-preset--glassmorphism .als-language-item--active {
+	background-color: rgba(255, 255, 255, 0.9);
+	color: #101828;
+	text-shadow: none;
+}
+
+/* 8. Minimal Border. */
+.als-preset--minimal-border {
+	gap: 8px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+
+.als-preset--minimal-border .als-language-item {
+	padding: 5px 12px;
+	border: 1px solid var(--als-border);
+	border-radius: 6px;
+	background: transparent;
+	font-weight: 500;
+}
+
+.als-preset--minimal-border .als-language-item--active {
+	border-color: currentColor;
+	background: transparent;
+	color: inherit;
+	font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+ * RTL
+ * ------------------------------------------------------------------------ */
+
+.als-is-rtl,
+[dir="rtl"] .als-language-switcher {
+	direction: rtl;
+}
+
+[dir="rtl"] .als-language-dropdown {
+	left: auto;
+	right: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Mobile
+ * ------------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+	.als-language-item,
+	.als-language-toggle {
+		min-height: 40px; /* Comfortable touch target. */
+	}
+
+	.als-language-switcher {
+		flex-wrap: wrap;
+	}
+
+	.als-layout--dropdown {
+		flex-wrap: nowrap;
+	}
+
+	.als-language-dropdown {
+		max-width: calc(100vw - 32px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.als-language-item,
+	.als-language-toggle,
+	.als-language-caret,
+	.als-language-dropdown {
+		transition: none !important;
+		animation: none !important;
+	}
+}
